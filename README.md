@@ -16,7 +16,7 @@ Setup your project directory,
 web/
 ├── modules/
 │   ├── shared/
-│   └── bootstrap.min.css.map
+│   └── main/
 └── gulpfile.js
 ```
 
