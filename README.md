@@ -37,9 +37,9 @@ jamba.dest_dir = "../public/assets"
 # add a module
 jamba.addModule 'shared', (m)->
 
-	# add a project:
-	#		- by default, all files in `source_dir` are included,
-	#		- use `source` to specify any specific ordering
+	# add a product:
+	#	- by default, all files in `source_dir` are included,
+	#	- use `source` to specify any specific ordering
 	m.addProduct 'shared.js', (p)->
 		p.source_dir = 'javascripts'
 		p.lib 'bootstrap/dist/js/bootstrap.min.js'
