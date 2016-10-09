@@ -10,6 +10,16 @@ Install,
 $ npm install --save agquick/jamba.js
 ```
 
+Setup your project directory,
+
+```
+web/
+├── modules/
+│   ├── shared/
+│   └── bootstrap.min.css.map
+└── gulpfile.js
+```
+
 Setup your `gulpfile.js`,
 
 ```
@@ -23,11 +33,12 @@ jamba.dest_dir = "../public/assets"
 # add a module
 jamba.addModule 'shared', (m)->
 
+	# add a project:
+	#		- by default, all files in `source_dir` are included,
+	#		- use `source` to specify any specific ordering
 	m.addProduct 'shared.js', (p)->
 		p.source_dir = 'javascripts'
 		p.lib 'bootstrap/dist/js/bootstrap.min.js'
-		# by default, all files in `source_dir` are included,
-		# use `source` to specify any specific ordering
 		p.source 'init.js.coffee'
 
 	m.addProduct 'shared.css', (p)->
