@@ -1,0 +1,34 @@
+{
+  "name": "jamba",
+  "version": "0.0.1",
+  "description": "An asset module manager.",
+  "main": "index.coffee",
+	"dependencies": {
+    "coffee-script": "^1.11.1",
+    "gulp": "^3.9.1",
+    "gulp-coffee": "^2.3.2",
+    "gulp-concat": "^2.6.0",
+    "gulp-sass": "^2.3.2",
+    "gulp-tap": "^0.1.3",
+    "hamljs": "^0.6.2",
+    "sass-convert": "^0.5.2",
+    "through2": "^2.0.1"
+	},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agquick/jamba.js.git"
+  },
+  "keywords": [
+    "asset",
+    "module"
+  ],
+  "author": "Alan Graham",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/agquick/jamba.js/issues"
+  },
+  "homepage": "https://github.com/agquick/jamba.js#readme"
+}
