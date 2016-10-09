@@ -16,10 +16,10 @@ Setup your project directory,
 web/
 ├── modules/
 │   ├── shared/
-|		|		├── javascripts/
-|		|		├── stylesheets/
-|		|		├── views/
-|		|		└── images/
+|   |   ├── javascripts/
+|   |   ├── stylesheets/
+|   |   ├── views/
+|   |   └── images/
 │   └── main/
 └── gulpfile.js
 ```
