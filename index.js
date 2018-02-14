@@ -11,6 +11,7 @@ const sass = require('gulp-sass');
 const path = require('path');
 const plumber = require('gulp-plumber');
 const gutil = require('gulp-util');
+const fs = require('fs');
 
 const converters = require('./converters');
 
@@ -135,10 +136,18 @@ class JambaProduct {
 	orderedFiles() {
 		const files = [];
 		for (let lib of Array.from(this.libs)) {
-			files.push(`node_modules/${lib}`);
+      const fp = `node_modules/${lib}`;
+      if (!fs.existsSync(fp)) {
+        throw new Error(`Library file ${lib} could not be found.`);
+      }
+			files.push(fp);
 		}
 		for (let source of Array.from(this.sources)) {
-			files.push(`${this.module.sourceDir}/${this.sourceDir}/${source}`);
+      const fp = `${this.module.sourceDir}/${this.sourceDir}/${source}`;
+      if (!fs.existsSync(fp)) {
+        throw new Error(`Source file ${source} could not be found.`);
+      }
+			files.push(fp);
 		}
 		files.push(`${this.module.sourceDir}/${this.sourceDir}/**/*`);
 		return files;
