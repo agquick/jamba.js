@@ -29,6 +29,7 @@ class CoffeeConverter extends Converter {
   get destExtension() { return ".js"; }
   convert(opts) {
     var file = opts.file;
+    //console.log("Processing qsc file " + file.path);
     file.contents = new Buffer(coffee.compile(file.contents.toString()));
     file.path = file.path.replace(this.sourceExtension, this.destExtension);
   }
@@ -39,8 +40,9 @@ class SassConverter extends Converter {
   get destExtension() { return ".css"; }
   convert(opts) {
     var file = opts.file;
+    const jamba = opts.product.jamba;
     const ext = file.path.substring(file.path.length - 5);
-    const ret = sass.renderSync({file: file.path, data: file.contents.toString('utf8'), indentedSyntax: (ext == ".sass")});
+    const ret = sass.renderSync({file: file.path, data: file.contents.toString('utf8'), indentedSyntax: (ext == ".sass"), includePaths: jamba.sassIncludePaths});
     file.contents = ret.css
     file.path = file.path.replace(ext, ".css");
   }
@@ -65,12 +67,14 @@ class QscConverter extends Converter {
   get sourceExtension() { return ".qsc"; }
   get destExtension() { return ".js"; }
   convert(opts) {
+    const jamba = opts.product.jamba;
     const lang = opts.lang || 'coffee'
     var file = opts.file;
     var output = "";
     var buffer = "";
     var ib = false;
     var pb = null;
+    //console.log("Processing coffee file " + file.path);
 
     // parse template
     const text = file.contents.toString('utf8');
@@ -81,7 +85,7 @@ class QscConverter extends Converter {
         ib = true;
       } else if (line.startsWith("</") && ib) {
         buffer += line;
-        var td = this.parseTag(buffer, {includePaths: opts.includePaths});
+        var td = this.parseTag(buffer, {includePaths: jamba.sassIncludePaths});
         if (td.tag_name == "template") {
           pb = `QS.utils.registerTemplate('${td.name}', ${JSON.stringify(td.processed_content)})\n`
         } else if (td.tag_name == "style") {
@@ -140,6 +144,9 @@ class QscConverter extends Converter {
     if (lang == "haml") {
       //content = "%div(title='The title') Here is a div";
       pc = haml.render(content);
+      if (pc.startsWith("\n<pre class='error'>")) {
+        throw new Error(pc);
+      }
     } else if (lang == "sass" || lang == "scss") {
       const indented = lang == "sass";
       pc = sass.renderSync({data: content, indentedSyntax: indented, includePaths: opts.includePaths || []}).css.toString('utf8');

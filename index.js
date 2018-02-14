@@ -21,45 +21,6 @@ class Jamba {
 		this.moduleDir = "modules";
 		this.destDir = "dist";
 		this.converters = [];
-		const coffee_tap = function(file, t, product){
-			if (path.extname(file.path) === '.coffee') {
-        //return t.through(coffee, []);
-        try {
-          console.log("I'm here");
-          asfdjkl();
-          //file.contents = new Buffer(coffee.compile(file.contents.toString()));
-        } catch (err) {
-          console.log("Now handling error.");
-          console.log(err.toString());
-          file.contents = new Buffer("");
-        }
-			}
-		};
-		const sass_tap = function(file, t, product){
-			if (path.extname(file.path) === '.sass') {
-        //return t.through(converters.sass_convert, []);
-        converters.sass_convert({file: file});
-			}
-		};
-		sass_tap.tap_name = "sass_tap";
-		const jhaml_tap = function(file, t, product){
-			if (path.extname(file.path) === '.jhaml') {
-        //return t.through(converters.jhaml_convert, [{base_path: product.source_path()}]);
-        converters.jhaml_convert({file: file, base_path: product.source_path});
-			}
-		};
-    const qsc_tap = function(file, t, product) {
-      if (path.extname(file.path) === ".qsc") {
-        //return t.through(converters.qsc_convert, []);
-        try {
-        converters.qsc_convert({file: file});
-        } catch (err) {
-          console.log("Now handling error.");
-          console.log(err.toString());
-          file.contents = new Buffer("");
-        }
-      }
-    }
 		this.converters.push(new converters.CoffeeConverter());
 		this.converters.push(new converters.SassConverter());
 		this.converters.push(new converters.QscConverter());
@@ -119,6 +80,7 @@ class JambaModule {
 class JambaProduct {
 	constructor(module, name){
 		this.module = module;
+    this.jamba = module.jamba;
 		this.name = name;
 		this.sourceDir = '.';
 		this.libs = [];
@@ -149,13 +111,13 @@ class JambaProduct {
       }
 			files.push(fp);
 		}
-		files.push(`${this.module.sourceDir}/${this.sourceDir}/**/*`);
+		files.push(`${this.module.sourceDir}/${this.sourceDir}/**/*.*`);
 		return files;
 	}
 	get dest() {
 		return `${this.module.destDir}/${this.name}`;
 	}
-	sourcePath() {
+	get sourcePath() {
 		return `${this.module.sourceDir}/${this.sourceDir}`;
 	}
 	type() {
@@ -174,11 +136,12 @@ class JambaProduct {
 		const product = this;
 		gulp.task(task_name, () => {
 			//console.log @orderedFiles()
-			console.log(`Buildling ${this.name} in ${this.module.name} to file ${this.dest}`);
+			console.log(`Building ${this.name} in ${this.module.name} to file ${this.dest}`);
 			let gt = gulp.src(this.orderedFiles());
-      gt = gt.pipe(plumber());
       for(let jc of jamba.converters) {
-        gt = gt.pipe( tap( (file, t)=> jc.tap(file, t, product)) );
+        gt = gt.pipe( tap(function(file, t) {
+          jc.tap(file, t, product);
+        }));
       };
 			if (type === 'directory') {
 				return gt = gt.pipe(gulp.dest(this.dest));
