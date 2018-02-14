@@ -28,6 +28,7 @@ class CoffeeConverter extends Converter {
   get sourceExtension() { return ".coffee"; }
   get destExtension() { return ".js"; }
   convert(opts) {
+    var file = opts.file;
     file.contents = new Buffer(coffee.compile(file.contents.toString()));
     file.path = file.path.replace(this.sourceExtension, this.destExtension);
   }
