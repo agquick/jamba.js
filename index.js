@@ -9,6 +9,8 @@ const coffee = require('gulp-coffee');
 const tap = require('gulp-tap');
 const sass = require('gulp-sass');
 const path = require('path');
+const plumber = require('gulp-plumber');
+const gutil = require('gulp-util');
 
 const converters = require('./converters');
 
@@ -17,32 +19,49 @@ class Jamba {
 		this.modules = {};
 		this.moduleDir = "modules";
 		this.destDir = "dist";
-		this.taps = [];
+		this.converters = [];
 		const coffee_tap = function(file, t, product){
 			if (path.extname(file.path) === '.coffee') {
-				return t.through(coffee, []);
+        //return t.through(coffee, []);
+        try {
+          console.log("I'm here");
+          asfdjkl();
+          //file.contents = new Buffer(coffee.compile(file.contents.toString()));
+        } catch (err) {
+          console.log("Now handling error.");
+          console.log(err.toString());
+          file.contents = new Buffer("");
+        }
 			}
 		};
 		const sass_tap = function(file, t, product){
 			if (path.extname(file.path) === '.sass') {
-				return t.through(converters.sass_convert, []);
+        //return t.through(converters.sass_convert, []);
+        converters.sass_convert({file: file});
 			}
 		};
 		sass_tap.tap_name = "sass_tap";
 		const jhaml_tap = function(file, t, product){
 			if (path.extname(file.path) === '.jhaml') {
-				return t.through(converters.jhaml_convert, [{base_path: product.source_path()}]);
+        //return t.through(converters.jhaml_convert, [{base_path: product.source_path()}]);
+        converters.jhaml_convert({file: file, base_path: product.source_path});
 			}
 		};
     const qsc_tap = function(file, t, product) {
       if (path.extname(file.path) === ".qsc") {
-        return t.through(converters.qsc_convert, []);
+        //return t.through(converters.qsc_convert, []);
+        try {
+        converters.qsc_convert({file: file});
+        } catch (err) {
+          console.log("Now handling error.");
+          console.log(err.toString());
+          file.contents = new Buffer("");
+        }
       }
     }
-		this.taps.push(coffee_tap);
-		this.taps.push(sass_tap);
-		this.taps.push(jhaml_tap);
-		this.taps.push(qsc_tap);
+		this.converters.push(new converters.CoffeeConverter());
+		this.converters.push(new converters.SassConverter());
+		this.converters.push(new converters.QscConverter());
 	}
 	addModule(name, cb){
 		const mod = new JambaModule(this, name);
@@ -146,9 +165,12 @@ class JambaProduct {
 		const product = this;
 		gulp.task(task_name, () => {
 			//console.log @orderedFiles()
-			console.log(`Buildling ${this.name} in ${this.module.name} to ${this.dest}`);
+			console.log(`Buildling ${this.name} in ${this.module.name} to file ${this.dest}`);
 			let gt = gulp.src(this.orderedFiles());
-			jamba.taps.forEach(jt=> gt = gt.pipe(tap(((file, t)=> jt(file, t, product))) ));
+      gt = gt.pipe(plumber());
+      for(let jc of jamba.converters) {
+        gt = gt.pipe( tap( (file, t)=> jc.tap(file, t, product)) );
+      };
 			if (type === 'directory') {
 				return gt = gt.pipe(gulp.dest(this.dest));
 			} else {
