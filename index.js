@@ -5,9 +5,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 const concat = require('gulp-concat');
-const coffee = require('gulp-coffee');
 const tap = require('gulp-tap');
-const sass = require('gulp-sass');
 const path = require('path');
 const plumber = require('gulp-plumber');
 const gutil = require('gulp-util');
@@ -147,9 +145,6 @@ class JambaProduct {
 				return gt = gt.pipe(gulp.dest(this.dest));
 			} else {
 				gt = gt.pipe(concat(this.name));
-				if (type === 'stylesheet') {
-					gt = gt.pipe(sass({includePaths: [this.sourcePath]}));
-				}
 				return gt = gt.pipe(gulp.dest(this.module.destDir));
 			}
 		});

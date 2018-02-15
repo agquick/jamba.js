@@ -1,4 +1,3 @@
-const through = require('through2');
 const path = require('path');
 const haml = require('haml');
 const utils = require('./utils');
