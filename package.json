@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "coffee-script": "^1.12.7",
+    "glob": "^7.1.2",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
     "gulp-plumber": "^1.2.0",

@@ -10,6 +10,7 @@ const path = require('path');
 const plumber = require('gulp-plumber');
 const gutil = require('gulp-util');
 const fs = require('fs');
+const glob = require('glob');
 
 const converters = require('./converters');
 
@@ -93,8 +94,10 @@ class JambaProduct {
 	get taskName() {
 		return `${this.module.name}-${this.name}`;
 	}
-	orderedFiles() {
-		const files = [];
+	orderedFiles(opts={}) {
+    var use_globs = opts.globs == true;
+		var files = [];
+    // lib files
 		for (let lib of Array.from(this.libs)) {
       const fp = `node_modules/${lib}`;
       if (!fs.existsSync(fp)) {
@@ -102,6 +105,7 @@ class JambaProduct {
       }
 			files.push(fp);
 		}
+    // source files
 		for (let source of Array.from(this.sources)) {
       const fp = `${this.module.sourceDir}/${this.sourceDir}/${source}`;
       if (!fs.existsSync(fp)) {
@@ -109,7 +113,15 @@ class JambaProduct {
       }
 			files.push(fp);
 		}
-		files.push(`${this.module.sourceDir}/${this.sourceDir}/**/*.*`);
+    // ordered glob files
+    var gp = `${this.module.sourceDir}/${this.sourceDir}/**/*.*`;
+    if (!use_globs) {
+      var gfiles = glob.sync(gp).sort();
+      files = files.concat(gfiles);
+    } else {
+      files.push(gp);
+    }
+    //console.log(files);
 		return files;
 	}
 	get dest() {
@@ -135,7 +147,7 @@ class JambaProduct {
 		gulp.task(task_name, () => {
 			//console.log @orderedFiles()
 			console.log(`Building ${this.name} in ${this.module.name} to file ${this.dest}`);
-			let gt = gulp.src(this.orderedFiles());
+			let gt = gulp.src(this.orderedFiles({globs: false}));
       for(let jc of jamba.converters) {
         gt = gt.pipe( tap(function(file, t) {
           jc.tap(file, t, product);
@@ -154,7 +166,7 @@ class JambaProduct {
 		const tn = `watch-${this.taskName}`;
 		gulp.task(tn, () => {
 			//console.log "Watching #{@name}..."
-			return gulp.watch(this.orderedFiles(), [`build-${this.taskName}`]);
+			return gulp.watch(this.orderedFiles({globs: true}), [`build-${this.taskName}`]);
 		});
 		return tn;
 	}
