@@ -11,6 +11,7 @@ const plumber = require('gulp-plumber');
 const gutil = require('gulp-util');
 const fs = require('fs');
 const glob = require('glob');
+const uglify = require('gulp-uglify');
 
 const converters = require('./converters');
 
@@ -156,6 +157,10 @@ class JambaProduct {
 			if (type === 'directory') {
 				return gt = gt.pipe(gulp.dest(this.dest));
 			} else {
+        // minify if set
+        if (product.minify == true) {
+          gt = gt.pipe(uglify(product.minifyOptions || {}));
+        }
 				gt = gt.pipe(concat(this.name));
 				return gt = gt.pipe(gulp.dest(this.module.destDir));
 			}
