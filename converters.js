@@ -16,7 +16,7 @@ class Converter {
       } catch (err) {
         console.log(`Syntax error in file: ${file.path}`);
         console.log(err.toString());
-        file.contents = new Buffer("");
+        file.contents = Buffer.from("");
         file.path = file.path.replace(this.sourceExtension, this.destExtension);
       }
     }
@@ -29,7 +29,7 @@ class CoffeeConverter extends Converter {
   convert(opts) {
     var file = opts.file;
     //console.log("Processing qsc file " + file.path);
-    file.contents = new Buffer(coffee.compile(file.contents.toString()));
+    file.contents = new Buffer.from(coffee.compile(file.contents.toString()));
     file.path = file.path.replace(this.sourceExtension, this.destExtension);
   }
 }
@@ -57,7 +57,7 @@ class JhamlConverter extends Converter{
     const html_min = html.replace("\n", "").replace(/"/g, '\\"');
     const name = `view-${rel_name}`;
     const jst = `window.JST || window.JST = {}; window.JST['${name}'] = function() { return \"${html_min}\"; };`;
-    file.contents = new Buffer(jst);
+    file.contents = new Buffer.from(jst);
     file.path = file.path.replace(".jhaml", ".js");
   };
 }
@@ -107,7 +107,7 @@ class QscConverter extends Converter {
     if (lang == 'coffee') {
       output = coffee.compile(output); 
     }
-    file.contents = new Buffer(output);
+    file.contents = new Buffer.from(output);
     file.path = file.path.replace(".qsc", ".js");
   }
 

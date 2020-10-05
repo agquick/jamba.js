@@ -40,8 +40,8 @@ class Jamba {
       bts.push(`build-${mod.name}`);
       wts.push(`watch-${mod.name}`);
     }
-    gulp.task("build-jamba", bts);
-    gulp.task("watch-jamba", wts);
+    gulp.task("build-jamba", gulp.series(...bts));
+    gulp.task("watch-jamba", gulp.parallel(...wts));
   }
 }
 
@@ -72,8 +72,8 @@ class JambaModule {
       names.push(product.registerBuildTask(gulp));
       wnames.push(product.registerWatchTask(gulp));
     }
-    gulp.task(`build-${this.name}`, names);
-    gulp.task(`watch-${this.name}`, wnames);
+    gulp.task(`build-${this.name}`, gulp.series(...names));
+    gulp.task(`watch-${this.name}`, gulp.parallel(...wnames));
   }
 }
 
@@ -172,11 +172,7 @@ class JambaProduct {
     const btn = `build-${this.taskName}`;
     gulp.task(tn, () => {
       //console.log "Watching #{@name}..."
-      return gulp.watch(this.orderedFiles({globs: true}), ()=> {
-        setTimeout(()=> {
-          gulp.start(btn);
-        }, 100);
-      });
+      return gulp.watch(this.orderedFiles({globs: true}), {delay: 200}, gulp.series(btn));
     });
     return tn;
   }
